@@ -22,7 +22,7 @@ replays.list((files) => {
 })
 ```
 
-### onNewReplay()
+### onNewReplay
 
 Execute a callback when a new replay is added to one of the default Heroes of the Storm replay directories. This can also be used as an indicator of a recently completed game. 
 
@@ -52,13 +52,7 @@ console.log(paths)
 ```
 
 ## Game state watcher
-The game state watcher is a finite state machine that will emit different events indicating the lifecycle of Heroes of the Storm. There are five lifecycle states emitted as events:
-
-* PROGRAM_NOT_RUNNING 
-* PROGRAM_RUNNING
-* GAME_RUNNING 
-* GAME_PAST90SECONDS 
-* GAME_FINISHED 
+The game state watcher is a finite state machine that will emit different events indicating the lifecycle of Heroes of the Storm. This object extends node's EventEmitter. 
 
 ```js
 const state = require('hotstools').state
@@ -66,6 +60,17 @@ const state = require('hotstools').state
 // Start watching for changes in the game lifecycle
 let watcher = state.watch()
 
-watcher.on(')
-
+watcher.on('PROGRAM_RUNNING', (pid) => {
+  console.log('Heroes of the Storm is now running')
+})
 ```
+
+### Game state watcher events
+
+There are five lifecycle states emitted as events:
+
+* PROGRAM_NOT_RUNNING 
+* PROGRAM_RUNNING
+* GAME_STARTED
+* GAME_PAST90SECONDS 
+* GAME_FINISHED 

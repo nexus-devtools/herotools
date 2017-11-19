@@ -16,7 +16,7 @@ class State extends EventEmitter {
         super()
         State.PROGRAM_NOT_RUNNING = 'PROGRAM_NOT_RUNNING'
         State.PROGRAM_RUNNING = 'PROGRAM_RUNNING'
-        State.GAME_RUNNING = 'GAME_RUNNING'
+        State.GAME_STARTED = 'GAME_STARTED'
         State.GAME_PAST90SECONDS = 'GAME_PAST90SECONDS'
         State.GAME_FINISHED = 'GAME_FINISHED'
 
@@ -44,20 +44,24 @@ class State extends EventEmitter {
         }
     }
 
-    gameRunning() {
+    programNotRunning() {
+        this.transition(State.PROGRAM_NOT_RUNNING)
+    }
+
+    gameStarted() {
         if (this.current() == State.GAME_FINISHED || this.current() == State.PROGRAM_RUNNING) {
-            this.transition(State.GAME_RUNNING)
+            this.transition(State.GAME_STARTED)
         }
     }
 
     gamePast90Seconds(saveFile) {
-        if (this.current() == State.GAME_RUNNING) {
+        if (this.current() == State.GAME_STARTED) {
             this.transition(State.GAME_PAST90SECONDS, saveFile)
         }
     }
 
     gameFinished(replayFile) {
-        if (this.current() == State.GAME_RUNNING || this.current() == State.GAME_PAST90SECONDS) {
+        if (this.current() == State.GAME_STARTED || this.current() == State.GAME_PAST90SECONDS) {
             this.transition(State.GAME_FINISHED, replayFile)
         }
     }
@@ -69,12 +73,18 @@ let psLoop = null
 
 function scan() {
     ps().then((processes) => {
+        let active = false
         for (let p in processes) {
             const process = processes[p]
 
             if (process.name == dirs.binary) {
+                active = true
                 state.programRunning(process.pid)
             }
+        }
+
+        if (!active) {
+            state.programNotRunning()
         }
 
         psLoop = setTimeout(scan, state.current() !== State.PROGRAM_NOT_RUNNING ?
