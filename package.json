@@ -1,0 +1,13 @@
+{
+  "name": "herotools",
+  "version": "0.1.0",
+  "description": "A collection of utility functions for Heroes of the Storm intended for node or electron apps.",
+  "main": "index.js",
+  "author": "Andy Baird <andybaird@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^1.7.0",
+    "glob": "^7.1.2",
+    "ps-list": "^4.0.0"
+  }
+}
