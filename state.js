@@ -20,7 +20,7 @@ class State extends EventEmitter {
         State.GAME_PAST90SECONDS = 'GAME_PAST90SECONDS'
         State.GAME_FINISHED = 'GAME_FINISHED'
 
-        let _state = null
+        let _state = State.PROGRAM_NOT_RUNNING
 
         this.setState = (newState) => {
             _state = newState
@@ -49,7 +49,7 @@ class State extends EventEmitter {
     }
 
     gameStarted() {
-        if (this.current() == State.GAME_FINISHED || this.current() == State.PROGRAM_RUNNING) {
+        if (this.current() == State.GAME_FINISHED || this.current() == State.PROGRAM_RUNNING || this.current() == State.PROGRAM_NOT_RUNNING) {
             this.transition(State.GAME_STARTED)
         }
     }
@@ -71,7 +71,7 @@ const state = new State()
 
 let psLoop = null
 
-function scan() {
+function scan(pollFrequencyInactive, pollFrequencyActive) {
     ps().then((processes) => {
         let active = false
         for (let p in processes) {
@@ -83,12 +83,12 @@ function scan() {
             }
         }
 
-        if (!active) {
+        if (!active && state.current() != State.PROGRAM_NOT_RUNNING) {
             state.programNotRunning()
         }
 
-        psLoop = setTimeout(scan, state.current() !== State.PROGRAM_NOT_RUNNING ?
-            HEROTOOLS_POLL_FREQ_INACTIVE : HEROTOOLS_POLL_FREQ_ACTIVE
+        psLoop = setTimeout(scan, state.current() === State.PROGRAM_NOT_RUNNING ?
+            pollFrequencyInactive : pollFrequencyActive
         )
     })
 }
@@ -100,8 +100,11 @@ function game() {
         ignorePermissionErrors: true
     })
 
+    console.log(dirs.lobby, dirs.account)
+
     watcher.on('ready', () => {
         watcher.on('add', (file) => {
+            console.log(file)
             const ext = path.extname(file)
 
             if (ext === '.StormReplay') {
@@ -110,15 +113,15 @@ function game() {
                 state.gamePast90Seconds(file)
             }
             if (path.win32.basename(file) === 'replay.tracker.events') {
-                state.gameRunning()
+                state.gameStarted()
             }
         })
     })
 }
 
-state.watch = () => {
+state.watch = (pollFrequencyInactive = HEROTOOLS_POLL_FREQ_INACTIVE, pollFrequencyActive = HEROTOOLS_POLL_FREQ_ACTIVE) => {
     game()
-    scan()
+    scan(pollFrequencyInactive, pollFrequencyActive)
 
     return state
 }
