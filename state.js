@@ -1,14 +1,16 @@
 const dirs = require('./paths')
 const chokidar = require('chokidar')
 const ps = require('ps-list')
+const fs = require('fs')
+const os = require('os')
 const path = require('path')
 const process = require('process')
 const EventEmitter = require('events')
 
-// Poll the program application state at different intervals
-// If the program is active, we poll less often to reduce CPU usage
-// These can be set as an environmental variable
-const HEROTOOLS_POLL_FREQ_ACTIVE = process.env.HEROTOOLS_POLL_FREQ_ACTIVE || 30000
+// Poll the program application state at different intervals If the program is
+// active, we poll less often to reduce CPU usage These can be set as an
+// environmental variable
+const HEROTOOLS_POLL_FREQ_ACTIVE = process.env.HEROTOOLS_POLL_FREQ_ACTIVE || 10000
 const HEROTOOLS_POLL_FREQ_INACTIVE = process.env.HEROTOOLS_POLL_FREQ_INACTIVE || 5000
 
 class State extends EventEmitter {
@@ -34,35 +36,35 @@ class State extends EventEmitter {
         this.setState(to)
 
         this.emit(to, args)
+
+        return true
     }
 
     programRunning(pid) {
         if (this.current() == State.PROGRAM_NOT_RUNNING) {
-            this.transition(State.PROGRAM_RUNNING, {
-                pid: pid
-            })
+            return this.transition(State.PROGRAM_RUNNING, {pid: pid})
         }
     }
 
     programNotRunning() {
-        this.transition(State.PROGRAM_NOT_RUNNING)
+        return this.transition(State.PROGRAM_NOT_RUNNING)
     }
 
     gameStarted() {
         if (this.current() == State.GAME_FINISHED || this.current() == State.PROGRAM_RUNNING || this.current() == State.PROGRAM_NOT_RUNNING) {
-            this.transition(State.GAME_STARTED)
+            return this.transition(State.GAME_STARTED)
         }
     }
 
     gamePast90Seconds(saveFile) {
         if (this.current() == State.GAME_STARTED) {
-            this.transition(State.GAME_PAST90SECONDS, saveFile)
+            return this.transition(State.GAME_PAST90SECONDS, saveFile)
         }
     }
 
     gameFinished(replayFile) {
         if (this.current() == State.GAME_STARTED || this.current() == State.GAME_PAST90SECONDS) {
-            this.transition(State.GAME_FINISHED, replayFile)
+            return this.transition(State.GAME_FINISHED, replayFile)
         }
     }
 }
@@ -79,36 +81,63 @@ function scan(pollFrequencyInactive, pollFrequencyActive) {
 
             if (process.name == dirs.binary) {
                 active = true
-                state.programRunning(process.pid)
+                if (state.programRunning(process.pid)) {
+                    game()
+                }
+                
             }
         }
 
         if (!active && state.current() != State.PROGRAM_NOT_RUNNING) {
             state.programNotRunning()
+
+            if (watcher) {
+                watcher.close()
+                watcher = null
+            }
         }
 
-        psLoop = setTimeout(scan, state.current() === State.PROGRAM_NOT_RUNNING ?
-            pollFrequencyInactive : pollFrequencyActive
-        )
+        psLoop = setTimeout(scan, state.current() === State.PROGRAM_NOT_RUNNING
+            ? pollFrequencyInactive
+            : pollFrequencyActive)
     })
 }
 
 let watcher
+
 function game() {
-    watcher = chokidar.watch([dirs.lobby, dirs.account], {
+    if (watcher && Object.keys(watcher.getWatched()).length > 0) {
+        return
+    }
+
+    watcher = chokidar.watch(dirs.arrays.account.join('/') + '/**/*.StormReplay', {
         persistent: true,
         ignorePermissionErrors: true
     })
+    
+    watcher.add(dirs.arrays.account.join('/') + '/**/*.StormSave')
 
-    console.log(dirs.lobby, dirs.account)
+    fs.stat(dirs.lobby, (err, stat) => {
+        if (err) {
+            if (err.code === 'ENOENT') {
+                watcher.add(os.tmpdir())
+            }
+            throw err            
+        } else {
+            watcher.add(dirs.lobby)
+        }
+    })
 
     watcher.on('ready', () => {
         watcher.on('add', (file) => {
-            console.log(file)
             const ext = path.extname(file)
 
             if (ext === '.StormReplay') {
                 state.gameFinished(file)
+
+                watcher.close()
+                watcher = null
+                game()
             } else if (ext === '.StormSave') {
                 state.gamePast90Seconds(file)
             }
@@ -120,7 +149,6 @@ function game() {
 }
 
 state.watch = (pollFrequencyInactive = HEROTOOLS_POLL_FREQ_INACTIVE, pollFrequencyActive = HEROTOOLS_POLL_FREQ_ACTIVE) => {
-    game()
     scan(pollFrequencyInactive, pollFrequencyActive)
 
     return state
@@ -130,8 +158,10 @@ state.unwatch = () => {
     if (psLoop) {
         clearTimeout(psLoop)
     }
-    watcher.close()
-    watcher = null
+    if (watcher) {
+        watcher.close()
+        watcher = null
+    }
 
     return state
 }

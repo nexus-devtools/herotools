@@ -11,14 +11,14 @@ function list() {
                 reject(err)
             }
 
-            files.map((file) => {
+            files = files.map((file) => {
                 return { 
                     time: fs.statSync(file).mtime.getTime(), 
                     path: file 
                 }
             }).sort((a,b) => b.time - a.time)
 
-            resolve(files)
+            resolve(files.map((file) => file.path))
         })
     })
 }
@@ -28,20 +28,25 @@ let watcher
 const replays = {
     list: list,
     set onNewReplay(callback) {
-        if (callback === null && watcher) {
-            watcher.close()
+        if (callback === null) {
+            if (watcher) {
+                watcher.close()
+                watcher = null
+            }
+            
             return
         }
     
         watcher = chokidar.watch(account, {
             persistent: true,
+            awaitWriteFinish: true,
             ignorePermissionErrors: true
         }).on('ready', () => {
             this.on('add', (file) => {
                 const ext = path.extname(file)
     
                 if (ext === '.StormReplay') {
-    
+                    callback(file)
                 }
             })
         })

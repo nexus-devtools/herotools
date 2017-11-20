@@ -1,6 +1,6 @@
 # Hero Tools
 
-This is a set of utility functions for Heroes of the Storm I've written for node or electron apps. These tools were primarily developed for another project I am working on (HotSTube). 
+This is a set of utility functions written in Javascript for Heroes of the Storm for node or electron apps. These tools were primarily developed for another project I am working on (HotSTube). 
 
 ### Contents
 - Replays
@@ -41,21 +41,49 @@ Setting `replay.onNewReplay = null` will remove the callback and clear out any f
 
 ## Game Paths
 
-Get relevant default game directories based on operating system. The account path contains battle.net account login folders, replays, saves, etc. The lobby path is the temporary folder Blizzard uses during a game to write replay information. The binary is the executable file name that appears on the operating system process list for Heroes of the Storm. 
+Get relevant default game directories based on operating system. 
 
 ```js
 const paths = require('hotstools').paths
 
 console.log(paths)
 // Windows:  
-{ account: 'C:\\Users\\Andy\\Documents\\Heroes of the Storm\\Accounts',
-  lobby: 'C:\\Users\\Andy\\AppData\\Local\\Temp\\Heroes of the Storm',
+{ account: 'C:\Users\Andy\Documents\Heroes of the Storm\Accounts',
+  lobby: 'C:\Users\Andy\AppData\Local\Temp\Heroes of the Storm',
   binary: 'HeroesOfTheStorm_x64.exe' }
 
 // Mac:
 { account: '/Users/andybaird/Library/Application Support/Blizzard/Heroes of the Storm/Accounts',
   lobby: '/Users/andybaird/Library/Caches/TemporaryItems/Blizzard/Heroes of the Storm',
   binary: 'Heroes' }
+```
+
+### Properties
+
+#### account
+Get the account directory. The account path contains battle.net account login folders, replays, saves, etc. 
+
+#### lobby
+Get the lobby directory. The lobby path is the temporary folder Blizzard uses during a game to write replay information. 
+
+#### binary
+Get the executable binary name. This the executable file name that appears on the operating system process list for Heroes of the Storm. 
+
+#### array
+Return the path information as an array instead of built path string. This can be useful if you want to build the path yourself or use in a glob pattern (on Windows).
+
+```js
+const paths = require('hotstools').paths
+
+console.log(paths.arrays.account)
+
+// Windows:
+[ 'C:',
+  'Users',
+  'Andy',
+  'Documents',
+  'Heroes of the Storm',
+  'Accounts' ]
 ```
 
 ## Game state watcher
@@ -91,7 +119,7 @@ Note that the program state is polled for every 5 seconds if the game is not run
 The polling rate can be changed by passing the two rates into the watch() function or setting the following environment variables:
 
 ```
-HEROTOOLS_POLL_FREQ_ACTIVE=30000
+HEROTOOLS_POLL_FREQ_ACTIVE=10000
 HEROTOOLS_POLL_FREQ_INACTIVE=5000
 ```
 
