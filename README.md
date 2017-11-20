@@ -12,14 +12,14 @@ This is a set of utility functions written in Javascript for Heroes of the Storm
 
 ### Methods
 
-#### list(files = [])
+#### list()
 
 Returns a promise which resolves all replays in the default Heroes of the Storm replay directories sorted by creation date. 
 
 ```js
 const replays = require('hotstools').replays
 
-replays.list((files) => {
+replays.list().then((files) => {
   console.log(files)
 })
 ```
@@ -69,7 +69,7 @@ Get the lobby directory. The lobby path is the temporary folder Blizzard uses du
 #### binary
 Get the executable binary name. This the executable file name that appears on the operating system process list for Heroes of the Storm. 
 
-#### array
+#### arrays
 Return the path information as an array instead of built path string. This can be useful if you want to build the path yourself or use in a glob pattern (on Windows).
 
 ```js
