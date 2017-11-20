@@ -10,8 +10,8 @@ const paths = {
         binary: 'HeroesOfTheStorm_x64.exe'
     },
     darwin: {
-        account: [...os.homedir().split(path.sep),'Library','Application Support','Blizzard','Heroes of the Storm','Accounts'],
-        lobby: [...os.homedir().split(path.sep),'Library','Caches','TemporaryItems','Blizzard','Heroes of the Storm'],
+        account: ['/',...os.homedir().split(path.sep),'Library','Application Support','Blizzard','Heroes of the Storm','Accounts'],
+        lobby: ['/',...os.homedir().split(path.sep),'Library','Caches','TemporaryItems','Blizzard','Heroes of the Storm'],
         binary: 'Heroes'
     }
 }
