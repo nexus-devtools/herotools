@@ -6,7 +6,6 @@ This is a set of utility functions written in Javascript for Heroes of the Storm
 - Replays
 - Game paths
 - Game state watcher
-- Automatically updating protocol decoder
 
 ## Replays
 
