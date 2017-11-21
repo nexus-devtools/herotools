@@ -5,6 +5,7 @@
   "main": "index.js",
   "author": "Andy Baird <andybaird@gmail.com>",
   "license": "MIT",
+  "repository" : "HotSTube/herotools",
   "dependencies": {
     "chokidar": "^1.7.0",
     "glob": "^7.1.2",
