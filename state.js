@@ -121,8 +121,9 @@ function game() {
         if (err) {
             if (err.code === 'ENOENT') {
                 watcher.add(os.tmpdir())
-            }
-            throw err            
+            } else {
+                throw err
+            }            
         } else {
             watcher.add(dirs.lobby)
         }
