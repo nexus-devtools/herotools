@@ -24,8 +24,7 @@
 "use strict";
 
 exports.version = ${version};
-${patch}
-const decoders = require('./decoders');
+const decoders = require('${decodersPath}');
 const BitPackedDecoder = decoders.BitPackedDecoder;
 const VersionDecoder = decoders.VersionDecoder;
 

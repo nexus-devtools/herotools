@@ -138,3 +138,9 @@ This indicates that the in-game clock has reached 90 seconds. At the 90 second m
 #### GAME_FINISHED 
 
 This indicates that a game is finished. This is detected by the addition of a new replay file in an account replays directory. 
+
+## Credits / Acknowledgements
+
+The protocol decoder is heavily based on [heroprotocoljs](https://github.com/nydus/heroprotocol/). Without it, this project would not be possible. Thanks to [Mathieu Merdy](https://github.com/Farof) for the original port and [Justin J. Novack](https://github.com/jnovack) for ongoing maintenance and the fantastic python conversion script. 
+
+Thanks to Blizzard for making a fantastic game and open sourcing the original [python based decoder](https://github.com/Blizzard/heroprotocol) as well as updating timely with new protocol versions.

@@ -1,11 +1,8 @@
-const replays = require('./replays')
-const MPQArchive = require('mpyqjs/mpyq').MPQArchive;
-const protocol29406 = require('./protocol29406')
+const replays = require('./lib/replays')
 
 replays.list().then((files) => {
     let file = files[0]
 
-    console.log(file)
     let archive = new MPQArchive(file)
 
 

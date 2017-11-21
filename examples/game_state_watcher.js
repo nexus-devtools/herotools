@@ -1,4 +1,4 @@
-const state = require('../state')
+const state = require('../lib/state')
 const process = require('process')
 
 let startAt, endAt, ninetySecondMarkAt
