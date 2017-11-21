@@ -1,6 +1,6 @@
 {
   "name": "herotools",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A collection of utility functions for Heroes of the Storm intended for node or electron apps.",
   "main": "index.js",
   "author": "Andy Baird <andybaird@gmail.com>",
