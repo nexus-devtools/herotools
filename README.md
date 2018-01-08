@@ -16,7 +16,7 @@ This is a set of utility functions written in Javascript for Heroes of the Storm
 Returns a promise which resolves all replays in the default Heroes of the Storm replay directories sorted by creation date. 
 
 ```js
-const replays = require('hotstools').replays
+const replays = require('herotools').replays
 
 replays.list().then((files) => {
   console.log(files)
@@ -28,7 +28,7 @@ replays.list().then((files) => {
 Execute a callback when a new replay is added to one of the default Heroes of the Storm replay directories. This can also be used as an indicator of a recently completed game. 
 
 ```js
-const replays = require('hotstools').replays
+const replays = require('herotools').replays
 const path = require('path')
 
 replays.onNewReplay = (file) => {
@@ -43,7 +43,7 @@ Setting `replay.onNewReplay = null` will remove the callback and clear out any f
 Get relevant default game directories based on operating system. 
 
 ```js
-const paths = require('hotstools').paths
+const paths = require('herotools').paths
 
 console.log(paths)
 // Windows:  
@@ -72,7 +72,7 @@ Get the executable binary name. This the executable file name that appears on th
 Return the path information as an array instead of built path string. This can be useful if you want to build the path yourself or use in a glob pattern (on Windows).
 
 ```js
-const paths = require('hotstools').paths
+const paths = require('herotools').paths
 
 console.log(paths.arrays.account)
 
@@ -95,7 +95,7 @@ The game state watcher is a finite state machine that will emit different events
 This method begins observing file system and operating system process list changes to determine the game state. After executing this method event listeners should be registered to respond to different game states. 
 
 ```js
-const state = require('hotstools').state
+const state = require('herotools').state
 
 // Start watching for changes in the game lifecycle
 let watcher = state.watch()
